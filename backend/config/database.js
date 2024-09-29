@@ -1,3 +1,4 @@
+//comment testing
 const { Sequelize } = require('sequelize');
 
 const sequelize = new Sequelize('gymbuddy', 'root', '', {
