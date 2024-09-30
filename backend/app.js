@@ -3,8 +3,13 @@ const app = express();
 const port = 3000;
 const db = require("./config/database");
 const users = require("./models/user");
+const exercises = require("./models/exercise");
+const workouts = require("./models/workout");
+
 const {DataTypes} = require("sequelize");
 const User = users(db,DataTypes);
+const Exercise= exercises(db, DataTypes);
+const Workout= workouts(db, DataTypes);
 
 const healthTest = async () => {
     console.log("Testing the database connection..");
