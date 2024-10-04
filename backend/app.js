@@ -1,5 +1,5 @@
 const express = require('express');
-const routes =require('./routes/routes');
+const routes = require('./routes/routes');
 const bodyParser = require('body-parser');
 const app = express();
 const port = 3000;
@@ -36,6 +36,7 @@ const healthTest = async () => {
   */
 healthTest();
 
+app.use('/', routes);
 app.get('/', (req, res) => {
    res.render('index', {pageTitle: "Home"});
  });
