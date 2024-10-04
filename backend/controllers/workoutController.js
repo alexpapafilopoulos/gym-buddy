@@ -1,6 +1,6 @@
 const axios = require('axios');
-const db = require("./config/database");
-const exercises = require("./models/exercise");
+const db = require("../config/database");
+const exercises = require("../models/exercise");
 const { Op } = require('sequelize');
 const {DataTypes} = require("sequelize");
 const Exercise= exercises(db, DataTypes);
@@ -9,6 +9,8 @@ const Exercise= exercises(db, DataTypes);
 const getRandomExercises = (arr, num) => {
     const result = [];
     const usedIndices = new Set(); // To ensure distinct exercises
+    if (arr.length === 0) return []; // Return empty if no exercises available
+
   
     while (result.length < num) {
       const randomIndex = Math.floor(Math.random() * arr.length);
@@ -43,12 +45,14 @@ const upper = (exercises) => {
     const randomTricepsTier3 = getRandomExercises(tierThreeTriceps, 1);
 
     const upper_result = randomChestTier1.concat(randomBackTier1, randomShouldersTier1, randomChestTier2, randomBackTier2, randomShouldersTier2, randomBicepsTier3, randomTricepsTier3);
+    console.log(upper_result);
+
     return upper_result;
 };
 
 const lower = (exercises) => {
     // Filter all tier 1s per muscle group in order to randomize and include all muscle groups in the program 
-    const tierZeroLower = exercises.filter(exercise => ['squats', 'deadlifts'].includes(exercise.exerciseName));
+    const tierZeroLower = exercises.filter(exercise => ['Squat', 'Deadlift'].includes(exercise.exerciseName));
     const tierOneQuads = exercises.filter(exercise => (exercise.tier === 1 && exercise.muscleGroup === 'quads'));
     const tierOneHamstrings = exercises.filter(exercise => (exercise.tier === 1 && exercise.muscleGroup === 'hamstrings'));
 
@@ -76,6 +80,7 @@ const lower = (exercises) => {
         randomGlutesTier2, 
         randomAbsTier3
     );
+    console.log(lower_result)
 
     return lower_result;
 };
@@ -95,7 +100,7 @@ exports.upper_lower = async (req, res) => {
         const lower_exercises = await Exercise.findAll({
             where: {
                 muscleGroup: {
-                    [Op.in]: ['quads', 'hamstrings', 'calves', 'abs']
+                    [Op.in]: ['quads', 'hamstrings', 'calves', 'abs', 'compound']
                 }
             }
         });
@@ -104,18 +109,22 @@ exports.upper_lower = async (req, res) => {
         const upper_workout1 = upper(upper_exercises);
         const lower_workout1 = lower(lower_exercises);
 
-        // Filter out exercises used in the first workouts
-        const exercises_after_upper1 = upper_exercises.filter(exercise =>
-            !upper_workout1.some(uw => uw.id === exercise.id)
-        );
+        // Log the generated workouts
+console.log('Upper Workout 1:', upper_workout1);
+console.log('Lower Workout 1:', lower_workout1);
 
-        const exercises_after_lower1 = lower_exercises.filter(exercise =>
-            !lower_workout1.some(lw => lw.id === exercise.id)
-        );
+// Filter out exercises used in the first workouts
+const exercises_after_upper1 = upper_exercises.filter(exercise =>
+    !upper_workout1 || !Array.isArray(upper_workout1) || !upper_workout1.some(uw => uw.dataValues.exerciseId === exercise.exerciseId)
+);
 
-        // Generate second set of upper and lower workouts
-        const upper_workout2 = upper(exercises_after_upper1);
-        const lower_workout2 = lower(exercises_after_lower1);
+const exercises_after_lower1 = lower_exercises.filter(exercise =>
+    !lower_workout1 || !Array.isArray(lower_workout1) || !lower_workout1.some(lw => lw.dataValues.exerciseId === exercise.exerciseId)
+);
+
+// Generate second set of upper and lower workouts
+const upper_workout2 = upper(exercises_after_upper1);
+const lower_workout2 = lower(exercises_after_lower1);
 
         // Create a JSON response structure with days
         const finalWorkouts = {
