@@ -1,8 +1,6 @@
 const db = require("./database");
 const exercises = require("../models/exercise");
 const users = require("../models/user");
-
-const { Op } = require('sequelize');
 const {DataTypes} = require("sequelize");
 const Exercise= exercises(db, DataTypes);
 const User=users(db, DataTypes);
@@ -31,7 +29,7 @@ const populateData = async () => {
       { exerciseName: 'Overhead Press', muscleGroup: 'shoulders', tier: 1, defaultReps: 10, defaultSets:3 },
       { exerciseName: 'Push Press', muscleGroup: 'shoulders', tier: 1, defaultReps: 10, defaultSets:3 },
       { exerciseName: 'Lateral Raises', muscleGroup: 'shoulders', tier: 2, defaultReps: 10, defaultSets:3 },
-      { exerciseName: 'Cable Lateral Raises', muscleGroup: 'shoulders', tier: 1, defaultReps: 10, defaultSets:3 },
+      { exerciseName: 'Cable Lateral Raises', muscleGroup: 'shoulders', tier: 2, defaultReps: 10, defaultSets:3 },
       { exerciseName: 'Front Squat', muscleGroup: 'quads', tier: 1, defaultReps: 10, defaultSets:3 },
       { exerciseName: 'Lunges', muscleGroup: 'quads', tier: 1, defaultReps: 10, defaultSets:3 },
       { exerciseName: 'Barbell Goodmornings', muscleGroup: 'hamstrings', tier: 1, defaultReps: 10, defaultSets:3 },

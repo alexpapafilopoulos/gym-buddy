@@ -37,9 +37,16 @@ const healthTest = async () => {
 healthTest();
 
 app.use('/', routes);
+
 app.get('/', (req, res) => {
    res.render('index', {pageTitle: "Home"});
  });
+
+ app.get('/program', (req, res) => {
+   res.render('program', {pageTitle: "Program"});
+});
+
+
  db.sync().then((req) => {
     app.listen(port, () => {
         console.log(`Server is running on port ${port}`);

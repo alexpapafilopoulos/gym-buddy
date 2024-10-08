@@ -1,0 +1,111 @@
+<%- include("partial/header") %>
+<html lang="en">
+  <body>
+    <div class="container mt-5">
+      <h1 class="text-center mb-4">Workout Plan</h1>
+      <div class="text-center">
+        <button id="saveWorkout" class="btn btn-primary">Save Workout</button>
+      </div>
+      <div id="workoutContainer"></div>
+      
+    </div>
+
+    <%- include("partial/footer") %>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        let workoutData = JSON.parse(localStorage.getItem('upperLowerData'));
+
+        if (workoutData) {
+          console.log('Received data:', workoutData);
+          renderWorkout(workoutData); // Pass workoutData to the render function
+        }
+
+        document.getElementById('saveWorkout').addEventListener('click', function () {
+          // Convert the modified workoutData back to JSON
+          const updatedWorkoutJson = JSON.stringify(workoutData);
+          console.log('Updated Workout Data:', updatedWorkoutJson);
+          // Here you can send this updated data to the server for saving or process it further
+          alert('Workout saved successfully!');
+        });
+      });
+
+      function renderWorkout(data) {
+        const workoutContainer = document.getElementById('workoutContainer');
+        if (!workoutContainer) {
+          console.error('workoutContainer element not found!');
+          return;
+        }
+
+        workoutContainer.innerHTML = ''; // Clear container for re-rendering
+
+        // Loop through each day's workout
+        for (const [day, details] of Object.entries(data)) {
+          const daySection = document.createElement('section');
+          daySection.classList.add('mb-5');
+
+          // Day header
+          const dayHeader = document.createElement('h2');
+          dayHeader.classList.add('text-center', 'mb-3');
+          dayHeader.textContent = `${day.charAt(0).toUpperCase() + day.slice(1)} (${details.type.charAt(0).toUpperCase() + details.type.slice(1)} Day)`;
+          daySection.appendChild(dayHeader);
+
+          // Create the table for exercises
+          const table = document.createElement('table');
+          table.classList.add('table', 'table-striped', 'table-bordered', 'text-center');
+          const thead = document.createElement('thead');
+          thead.innerHTML = `
+            <tr>
+              <th>Exercise Name</th>
+              <th>Description</th>
+              <th>Sets</th>
+              <th>Reps</th>
+              <th>Action</th>
+            </tr>
+          `;
+          table.appendChild(thead);
+
+          const tbody = document.createElement('tbody');
+          details.exercises.forEach((exercise, index) => {
+            const row = document.createElement('tr');
+            row.setAttribute('data-exercise-id', `${day}-${index}`); // Set an identifier for the exercise row
+
+            row.innerHTML = `
+              <td>${exercise.exerciseName}</td>
+              <td>${exercise.description || 'No description available'}</td>
+              <td>${exercise.defaultSets}</td>
+              <td>${exercise.defaultReps}</td>
+            `;
+            const actionCell = document.createElement('td');
+            const deleteButton = document.createElement('button');
+            deleteButton.classList.add('btn', 'btn-danger', 'btn-sm');
+            deleteButton.textContent = 'Remove';
+            deleteButton.onclick = function () {
+              removeExercise(day, index, row, data); // Pass data (workoutData) here
+            };
+            actionCell.appendChild(deleteButton);
+            row.appendChild(actionCell);
+            tbody.appendChild(row);
+          });
+
+          table.appendChild(tbody);
+          daySection.appendChild(table);
+          workoutContainer.appendChild(daySection);
+        }
+      }
+
+      function removeExercise(day, exerciseIndex, rowElement, workoutData) {
+        // Remove the row from the UI
+        rowElement.remove();
+
+        // Remove the exercise from the workoutData object
+        workoutData[day].exercises.splice(exerciseIndex, 1);
+
+        localStorage.setItem('upperLowerData', JSON.stringify(workoutData)); //Remove the exercise from local storage so it does not reappear after reloading
+
+        console.log(`Removed exercise from ${day}, index ${exerciseIndex}`);
+        console.log('Updated workoutData:', workoutData);
+      }
+    </script>
+  </body>
+</html>
